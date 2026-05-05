@@ -1,26 +1,105 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --plume-bg: #070a0f;
+  --plume-panel: #0c1018;
+  --plume-edge: #161c2a;
+  --plume-accent: #3ee0b3;
+  --plume-accent-2: #7c6cf0;
+  --plume-muted: #94a3b8;
+  --plume-text: #e8edf7;
+  --plume-danger: #fb7185;
+}
+
+html.light {
+  --plume-bg: #f4f6fb;
+  --plume-panel: #ffffff;
+  --plume-edge: #e2e8f0;
+  --plume-text: #0f172a;
+  --plume-muted: #64748b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-plume-bg: var(--plume-bg);
+  --color-plume-panel: var(--plume-panel);
+  --color-plume-edge: var(--plume-edge);
+  --color-plume-accent: var(--plume-accent);
+  --color-plume-accent-2: var(--plume-accent-2);
+  --color-plume-muted: var(--plume-muted);
+  --color-plume-text: var(--plume-text);
+  --color-plume-danger: var(--plume-danger);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-outfit);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: radial-gradient(
+      1200px 700px at 20% -10%,
+      rgb(60 130 110 / 18%),
+      transparent
+    ),
+    radial-gradient(
+      900px 500px at 90% 10%,
+      rgb(100 90 200 / 14%),
+      transparent
+    ),
+    var(--plume-bg);
+  color: var(--plume-text);
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+#plume-shell {
+  position: relative;
+  min-height: 100%;
+  isolation: isolate;
+}
+
+@keyframes plume-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes plume-flip {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-18deg) scale(1.08);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.plume-heart-burst::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgb(251 113 133 / 55%),
+    transparent 70%
+  );
+  animation: plume-pop 520ms ease-out forwards;
+  pointer-events: none;
+}
+
+.plume-repost-anim {
+  animation: plume-flip 520ms ease-out;
 }

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Plume iframe embed test</title>
+    <style>
+      body {
+        margin: 0;
+        background: #0b1020;
+        padding: 24px;
+        font-family: system-ui, sans-serif;
+        color: #fff;
+      }
+      iframe {
+        width: 1024px;
+        height: 720px;
+        border: 1px solid #2a2f4a;
+        border-radius: 14px;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h2 style="margin: 0 0 16px">Iframe embed check (1024×720)</h2>
+    <iframe
+      src="http://localhost:3140"
+      title="Plume"
+      allow="autoplay; clipboard-write"
+    ></iframe>
+
+    <h2 style="margin: 36px 0 16px">Narrow (800×720 — right rail hidden)</h2>
+    <iframe
+      src="http://localhost:3140"
+      title="Plume narrow"
+      width="800"
+      height="720"
+      style="border: 1px solid #2a2f4a; border-radius: 14px"
+      allow="autoplay; clipboard-write"
+    ></iframe>
+
+    <h2 style="margin: 36px 0 16px">Wide (1200×720 — right rail visible)</h2>
+    <iframe
+      src="http://localhost:3140"
+      title="Plume wide"
+      width="1200"
+      height="720"
+      style="border: 1px solid #2a2f4a; border-radius: 14px; display: block"
+      allow="autoplay; clipboard-write"
+    ></iframe>
+  </body>
+</html>

@@ -1,36 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Plume — calm microblogs for curious minds
 
-## Getting Started
+A production-style **Twitter / X‑inspired microblog** built for iframe embedding on a portfolio: home timeline, Explore, Notifications, profiles, replies, quotes, reposts, search, hashtags, @mentions, and rich seed data. Auth is **JWT in `localStorage`** (`plume_token`) so the demo works cleanly inside cross-origin iframes (no brittle third-party cookies).
 
-First, run the development server:
+> **Screenshot:** add `docs/screenshot-home.png` after capture for the résumé page; the UI is dark-first with optional light theme.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│  Next.js 15 │────▶│  API Routes +    │────▶│  PostgreSQL     │
+│  App Router │     │  Prisma Client   │     │  (Supabase/local)│
+│  React 19   │◀────│  Server actions  │◀────│                 │
+└─────────────┘     └──────────────────┘     └─────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Layer | Tech |
+|-------|------|
+| UI | Next.js 15 App Router, React 19, Tailwind CSS 4, Framer Motion |
+| Data | Prisma ORM 6.x, PostgreSQL |
+| Auth | `jose` JWT, Bearer + `Authorization` / stored token |
+| Dev DB | Docker Compose (`postgres:16-alpine`, port **33321**) |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Clone & install**
 
-## Learn More
+   ```bash
+   cd Showcase-Feed
+   npm install
+   cp .env.example .env
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Start Postgres**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   docker compose up -d postgres
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Migrate & seed**
 
-## Deploy on Vercel
+   ```bash
+   npx prisma migrate deploy
+   npm run db:seed
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Run the app** (default port **3140**)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3140](http://localhost:3140). The client calls **`POST /api/auth/bootstrap`** on load to sign in as the demo user (no password prompt).
+
+## Docker (app + database)
+
+Build and run the full stack (runs migrations on start):
+
+```bash
+docker compose up --build
+```
+
+Adjust `DATABASE_URL` in `.env` / compose for your environment. The `Dockerfile` targets production: `prisma generate`, `next build`, `migrate deploy`, `next start`.
+
+## Demo credentials
+
+| Mode | How |
+|------|-----|
+| **Auto (recommended)** | Open the app — bootstrap issues a JWT for **`@plume_preview`**. |
+| **Password (seeded users)** | Any seeded user email from the DB + password **`demo`** (bcrypt in seed). The UI does not expose a login form; use bootstrap or extend with a login route if needed. |
+
+**Designated demo handle:** `plume_preview`
+
+**Other seeded handles (personas):**  
+`mira_chen`, `jules_oka`, `indiefocus`, `dr_clara`, `cityledger`, `brushandbyte`, `syntaxsarah`, `loopengineer`, `filmthread`, `climatememo`, `kitchencodes`, `urbansketch`, `polarfront`
+
+## Database schema (overview)
+
+- **User** — handle, name, bio, avatar, banner, location, password hash (optional)
+- **Post** — body, `authorId`, `parentId` (replies), `quotedPostId` (quote tweets)
+- **PostMedia** — image URLs per post
+- **Like**, **Repost**, **Bookmark** — engagement
+- **Follow** — follower / followee graph
+- **Notification** — like, follow, reply, repost (with actor + optional post)
+- **Hashtag** + **PostHashtag** — tags and trending counts
+
+Run `npx prisma studio` to inspect.
+
+## Iframe embed (parent career page)
+
+Headers allow embedding: **`Content-Security-Policy: frame-ancestors *`** (see `next.config.ts`). Layout avoids `100vh` for the shell; modals mount under `#plume-shell`.
+
+```html
+<iframe
+  src="https://YOUR-VERCEL-URL"
+  width="100%"
+  height="720"
+  style="border:0;border-radius:16px;max-width:1200px;display:block;margin:0 auto"
+  title="Plume"
+  allow="autoplay; clipboard-write"
+  loading="lazy"
+></iframe>
+```
+
+Local multi-width check: open `iframe-test.html` in a browser (or `npx serve .` from the repo root). It includes **1024px**, **800px** (right rail hidden), and **1200px** (right rail visible) iframes.
+
+## Deploy (Vercel + Supabase)
+
+1. Create a **Supabase** project → **Project settings → Database** → copy the **connection string** (URI, with password). Set `?sslmode=require` if required.
+2. In Vercel → project → **Environment variables**:
+   - `DATABASE_URL` — Supabase Postgres URL
+   - `JWT_SECRET` — long random string
+   - `NEXT_PUBLIC_APP_NAME` — optional (`Plume`)
+3. Deploy:
+
+   ```bash
+   npx vercel --prod --yes
+   ```
+
+   If the CLI stops for **interactive login**, finish linking in the browser once, then re-run; document any blocker in your handoff.
+
+4. **Post-deploy:** run migrations against production (Vercel build can run `prisma migrate deploy` if configured, or run once locally with prod `DATABASE_URL`):
+
+   ```bash
+   DATABASE_URL="postgresql://..." npx prisma migrate deploy
+   DATABASE_URL="..." npm run db:seed
+   ```
+
+## GitHub
+
+```bash
+gh repo create ori1706/plume --public --source=. --push --description "Plume — portfolio microblog (Next.js, Prisma, Postgres)"
+```
+
+(Use another repo name if `plume` is taken.)
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `npm run dev` | Dev server on port 3140 |
+| `npm run build` / `npm start` | Production build & start |
+| `npm run db:seed` | Reseed database |
+| `npm run db:migrate` | Prisma migrate dev |
+| `npm run lint` | ESLint |
+
+## Verification checklist (browser)
+
+- Home timeline populated; Trending + Who to follow sidebars on large widths
+- Compose (280 chars, images, `#` / `@` typeahead), post appears at top
+- Hashtag → search; @mention → profile `/{handle}`
+- Like / repost / reply / quote; notifications; Explore tabs; search
+- **Iframe:** `iframe-test.html` loads three widths without CSP/frame errors
+
+## License
+
+MIT (showcase / portfolio use).

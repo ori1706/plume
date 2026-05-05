@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: plume
+      POSTGRES_PASSWORD: plume
+      POSTGRES_DB: plume
+    ports:
+      - "33321:5432"
+    volumes:
+      - plume_pg:/var/lib/postgresql/data
+
+volumes:
+  plume_pg:
