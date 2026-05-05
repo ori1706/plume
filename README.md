@@ -90,7 +90,7 @@ Headers allow embedding: **`Content-Security-Policy: frame-ancestors *`** (see `
 
 ```html
 <iframe
-  src="https://YOUR-VERCEL-URL"
+  src="https://plume-showcase.vercel.app"
   width="100%"
   height="720"
   style="border:0;border-radius:16px;max-width:1200px;display:block;margin:0 auto"
@@ -101,6 +101,17 @@ Headers allow embedding: **`Content-Security-Policy: frame-ancestors *`** (see `
 ```
 
 Local multi-width check: open `iframe-test.html` in a browser (or `npx serve .` from the repo root). It includes **1024px**, **800px** (right rail hidden), and **1200px** (right rail visible) iframes.
+
+## Production status (Vercel)
+
+An initial deploy succeeded as **[https://plume-showcase.vercel.app](https://plume-showcase.vercel.app)** (project name `plume-showcase`; first deploy used `npx vercel --prod --yes`).
+
+The static shell loads and **`Content-Security-Policy: frame-ancestors *`** is set correctly. **`/api/auth/bootstrap` will return 500 until you add `DATABASE_URL` and `JWT_SECRET` in the Vercel dashboard**, then run migrations and seed against that database:
+
+```bash
+DATABASE_URL="postgresql://..." JWT_SECRET="..." npx prisma migrate deploy
+DATABASE_URL="..." JWT_SECRET="..." npm run db:seed
+```
 
 ## Deploy (Vercel + Supabase)
 
