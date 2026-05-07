@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { signUserToken } from "@/lib/jwt";
 
-/** Demo-only: issues a JWT for the seeded preview account (iframe-friendly; no password round-trip). */
+/** Demo-only: issues a JWT for the seeded preview account (no password round-trip). */
 export async function POST() {
   const user = await prisma.user.findUnique({
     where: { handle: "plume_preview" },

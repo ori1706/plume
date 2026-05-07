@@ -1,6 +1,6 @@
 # Plume — calm microblogs for curious minds
 
-A production-style **Twitter / X‑inspired microblog** built for iframe embedding on a portfolio: home timeline, Explore, Notifications, profiles, replies, quotes, reposts, search, hashtags, @mentions, and rich seed data. Auth is **JWT in `localStorage`** (`plume_token`) so the demo works cleanly inside cross-origin iframes (no brittle third-party cookies).
+A production-style **Twitter / X‑inspired microblog** with home timeline, Explore, Notifications, profiles, replies, quotes, reposts, search, hashtags, @mentions, and rich seed data. Auth is **JWT in `localStorage`** (`plume_token`) so the demo sidesteps brittle third-party cookies in nested hosting.
 
 > **Screenshot:** add `docs/screenshot-home.png` after capture for the résumé page; the UI is dark-first with optional light theme.
 
@@ -84,7 +84,7 @@ Adjust `DATABASE_URL` in `.env` / compose for your environment. The `Dockerfile`
 
 Run `npx prisma studio` to inspect.
 
-## Iframe embed (parent career page)
+## Embed snippet (parent page)
 
 Headers allow embedding: **`Content-Security-Policy: frame-ancestors *`** (see `next.config.ts`). Layout avoids `100vh` for the shell; modals mount under `#plume-shell`.
 
@@ -100,7 +100,7 @@ Headers allow embedding: **`Content-Security-Policy: frame-ancestors *`** (see `
 ></iframe>
 ```
 
-Local multi-width check: open `iframe-test.html` in a browser (or `npx serve .` from the repo root). It includes **1024px**, **800px** (right rail hidden), and **1200px** (right rail visible) iframes.
+Local multi-width check: open `iframe-test.html` in a browser (or `npx serve .` from the repo root). It includes **1024px**, **800px** (right rail hidden), and **1200px** (right rail visible) preview widths.
 
 ## Production status (Vercel)
 
@@ -159,7 +159,7 @@ gh repo create ori1706/plume --public --source=. --push --description "Plume —
 - Compose (280 chars, images, `#` / `@` typeahead), post appears at top
 - Hashtag → search; @mention → profile `/{handle}`
 - Like / repost / reply / quote; notifications; Explore tabs; search
-- **Iframe:** `iframe-test.html` loads three widths without CSP/frame errors
+- **Nested preview:** `iframe-test.html` exercises three widths without CSP/frame errors
 
 ## License
 
